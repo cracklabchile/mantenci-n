@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Mantenimiento - Central Chuyaca</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0d3b66 0%, #1a5a9a 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            color: #0d3b66;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        h1 {
+            font-size: 2.3rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: #0d3b66;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+            color: #5c7c9a;
+        }
+
+        .header-logo {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #1a5a9a 0%, #0d3b66 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .meta-box {
+            background: linear-gradient(to right, #eef5fc, #d9e8f9);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #1a5a9a;
+        }
+
+        .meta-box h3 {
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #5c7c9a;
+        }
+
+        .meta-box p {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #0d3b66;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            padding: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 4px solid #1a5a9a;
+        }
+
+        .card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            color: #0d3b66;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e9f0f7;
+            display: flex;
+            align-items: center;
+        }
+
+        .card h2 i {
+            margin-right: 12px;
+            color: #3498db;
+            background: #e9f0f7;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .indicator-card {
+            text-align: center;
+            padding: 25px 15px;
+            background: #f8fafd;
+            border-radius: 12px;
+            margin: 15px 0;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .indicator-value {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #0d3b66;
+            margin: 15px 0;
+        }
+
+        .indicator-label {
+            font-size: 1.1rem;
+            color: #5c7c9a;
+            font-weight: 500;
+        }
+
+        .positive {
+            color: #27ae60;
+        }
+
+        .negative {
+            color: #e74c3c;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e6ed;
+        }
+
+        .data-table th {
+            background-color: #1a5a9a;
+            color: white;
+            font-weight: 500;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: #f8fafd;
+        }
+
+        .data-table tr:hover {
+            background-color: #e9f0f7;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #0d3b66;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background-color: #e0e6ed;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .equipment-card {
+            background: #f8fafd;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .equipment-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .critical {
+            border-left-color: #e74c3c;
+            background: #fff6f5;
+        }
+
+        .equipment-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .equipment-card p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+            color: #5c7c9a;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+
+        .badge-critical {
+            background: #ffebee;
+            color: #e74c3c;
+        }
+
+        .badge-good {
+            background: #e8f5e9;
+            color: #27ae60;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .print-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .print-btn:hover {
+            transform: scale(1.1);
+            background: #219653;
+        }
+
+        @media print {
+            .print-btn {
+                display: none;
+            }
+            
+            body {
+                background: white;
+                padding: 10px;
+            }
+            
+            .card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .header-logo {
+                margin-top: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Dashboard de Mantenimiento - Central Chuyaca</h1>
+                <p class="subtitle">Indicadores de gestión, análisis técnico y plan de optimización</p>
+                
+                <div class="header-meta">
+                    <div class="meta-box">
+                        <h3>Período de análisis</h3>
+                        <p>Feb 2024 - May 2025</p>
+                    </div>
+                    <div class="meta-box">
+                        <h3>Capacidad instalada</h3>
+                        <p>20 MW</p>
+                    </div>
+                    <div class="meta-box">
+                        <h3>Disponibilidad global</h3>
+                        <p>99.38%</p>
+                    </div>
+                    <div class="meta-box">
+                        <h3>Generadores críticos</h3>
+                        <p>4 equipos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="header-logo">
+                SA
+            </div>
+        </header>
+
+        <div class="card-grid">
+            <div class="card">
+                <h2><i class="fas fa-chart-line"></i> Disponibilidad Comparativa</h2>
+                <div class="chart-container">
+                    <canvas id="availabilityChart"></canvas>
+                </div>
+                <p>El generador 5595 muestra una disponibilidad inferior (98.0%) debido a 3 fallas que representaron 232 horas de parada.</p>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-tachometer-alt"></i> Indicadores Clave</h2>
+                <div class="indicator-card">
+                    <div class="indicator-value positive">99.38%</div>
+                    <div class="indicator-label">Disponibilidad Global</div>
+                </div>
+                <div class="indicator-card">
+                    <div class="indicator-value">77.39 hrs</div>
+                    <div class="indicator-label">MTTR (Tiempo Medio de Reparación)</div>
+                </div>
+                <div class="indicator-card">
+                    <div class="indicator-value">30,911.72 hrs</div>
+                    <div class="indicator-label">MTBF (Tiempo Medio Entre Fallas)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-grid">
+            <div class="card">
+                <h2><i class="fas fa-history"></i> Distribución de Horas de Parada</h2>
+                <div class="chart-container">
+                    <canvas id="downtimeChart"></canvas>
+                </div>
+                <p>El 40% de las horas de parada se deben a fallas, mientras que el 60% corresponde a mantenimiento preventivo.</p>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-wrench"></i> Tipos de Mantenimiento Realizado</h2>
+                <div class="chart-container">
+                    <canvas id="maintenanceTypeChart"></canvas>
+                </div>
+                <p>El mantenimiento preventivo representa el 85% de las actividades, mientras que el correctivo solo el 15%.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-bolt"></i> Análisis de Equipos Críticos</h2>
+            <div class="equipment-grid">
+                <div class="equipment-card critical">
+                    <h3>Generador G4 (5595)</h3>
+                    <p><strong>Capacidad:</strong> 2,500 kW</p>
+                    <p><strong>Fabricante:</strong> Motorworks</p>
+                    <p><strong>Modelo:</strong> 20-645-E4FB</p>
+                    <p><strong>Año:</strong> 2007</p>
+                    <p><strong>Disponibilidad:</strong> 98.0%</p>
+                    <div class="badge badge-critical">Equipo crítico</div>
+                </div>
+                
+                <div class="equipment-card">
+                    <h3>Generador G1 (5596)</h3>
+                    <p><strong>Capacidad:</strong> 2,500 kW</p>
+                    <p><strong>Fabricante:</strong> General Motor</p>
+                    <p><strong>Modelo:</strong> 20-645-EF4B</p>
+                    <p><strong>Año:</strong> 2007</p>
+                    <p><strong>Disponibilidad:</strong> 100%</p>
+                    <div class="badge badge-good">Sin fallas</div>
+                </div>
+                
+                <div class="equipment-card">
+                    <h3>Generador G5 (5600)</h3>
+                    <p><strong>Capacidad:</strong> 2,500 kW</p>
+                    <p><strong>Fabricante:</strong> General Motor</p>
+                    <p><strong>Modelo:</strong> 20-645-EF4B</p>
+                    <p><strong>Año:</strong> 2007</p>
+                    <p><strong>Disponibilidad:</strong> 100%</p>
+                    <div class="badge badge-good">Sin fallas</div>
+                </div>
+                
+                <div class="equipment-card">
+                    <h3>Transformador T11</h3>
+                    <p><strong>Capacidad:</strong> 10 MVA</p>
+                    <p><strong>Tensión:</strong> 66/23 kV</p>
+                    <p><strong>Año:</strong> 2006</p>
+                    <p><strong>Estado:</strong> Óptimo</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-list"></i> Eventos Relevantes</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Cierre</th>
+                        <th>Tipo</th>
+                        <th>Equipo</th>
+                        <th>Duración (hrs)</th>
+                        <th>Observación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>05/02/2024 14:19</td>
+                        <td>07/02/2024 16:46</td>
+                        <td>HFSMC (Falla)</td>
+                        <td>5595</td>
+                        <td>50.45</td>
+                        <td>Falla en generador</td>
+                    </tr>
+                    <tr>
+                        <td>01/12/2024 00:00</td>
+                        <td>05/12/2024 18:53</td>
+                        <td>HFSMC (Falla)</td>
+                        <td>5595</td>
+                        <td>114.88</td>
+                        <td>Falla en generador</td>
+                    </tr>
+                    <tr>
+                        <td>01/12/2024 00:00</td>
+                        <td>05/12/2024 18:53</td>
+                        <td>HMP (Mantenimiento)</td>
+                        <td>5594</td>
+                        <td>114.88</td>
+                        <td>Mantenimiento preventivo</td>
+                    </tr>
+                    <tr>
+                        <td>01/12/2024 00:00</td>
+                        <td>05/12/2024 18:53</td>
+                        <td>HMP (Mantenimiento)</td>
+                        <td>5597</td>
+                        <td>114.88</td>
+                        <td>Mantenimiento preventivo</td>
+                    </tr>
+                    <tr>
+                        <td>25/03/2025 19:48</td>
+                        <td>28/03/2025 14:39</td>
+                        <td>HFSMC (Falla)</td>
+                        <td>5595</td>
+                        <td>66.85</td>
+                        <td>Falla en generador</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-tasks"></i> Propuestas de Optimización</h2>
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span>Implementación de SAP PM</span>
+                    <span>Prioridad alta</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 70%; background: linear-gradient(90deg, #3498db, #1a5a9a);"></div>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span>Mantenimiento predictivo G4 (5595)</span>
+                    <span>Prioridad crítica</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 90%; background: linear-gradient(90deg, #e74c3c, #c0392b);"></div>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span>Actualización interruptores</span>
+                    <span>Prioridad media</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 50%; background: linear-gradient(90deg, #f39c12, #e67e22);"></div>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span>Capacitación técnicos</span>
+                    <span>Prioridad alta</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 65%; background: linear-gradient(90deg, #3498db, #1a5a9a);"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Informe elaborado por Grupo Chuyaca - Evaluación N°4 Plan de Mantenimiento Central Eléctrica</p>
+            <p>Fecha de elaboración: 17 de julio de 2025 | Documento confidencial</p>
+        </footer>
+    </div>
+
+    <div class="print-btn" title="Tomar captura para informe">
+        <i class="fas fa-camera"></i>
+    </div>
+
+    <script>
+        // Disponibilidad comparativa
+        const availabilityCtx = document.getElementById('availabilityChart').getContext('2d');
+        const availabilityChart = new Chart(availabilityCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Generador 5595', 'Promedio Planta'],
+                datasets: [{
+                    label: 'Disponibilidad (%)',
+                    data: [98.0, 99.38],
+                    backgroundColor: [
+                        'rgba(231, 76, 60, 0.7)',
+                        'rgba(46, 204, 113, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(231, 76, 60, 1)',
+                        'rgba(46, 204, 113, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 97,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Disponibilidad (%)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Disponibilidad: ${context.parsed.y}%`;
+                            }
+                        },
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        titleColor: '#0d3b66',
+                        bodyColor: '#333',
+                        borderColor: '#e0e6ed',
+                        borderWidth: 1
+                    }
+                }
+            }
+        });
+
+        // Distribución de horas de parada
+        const downtimeCtx = document.getElementById('downtimeChart').getContext('2d');
+        const downtimeChart = new Chart(downtimeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Fallas (HFSMC)', 'Mantenimiento (HMP)'],
+                datasets: [{
+                    data: [232.18, 344.65],
+                    backgroundColor: [
+                        'rgba(231, 76, 60, 0.7)',
+                        'rgba(52, 152, 219, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(231, 76, 60, 1)',
+                        'rgba(52, 152, 219, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} hrs (${percentage}%)`;
+                            }
+                        },
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        titleColor: '#0d3b66',
+                        bodyColor: '#333',
+                        borderColor: '#e0e6ed',
+                        borderWidth: 1
+                    }
+                }
+            }
+        });
+
+        // Tipos de mantenimiento
+        const maintenanceCtx = document.getElementById('maintenanceTypeChart').getContext('2d');
+        const maintenanceChart = new Chart(maintenanceCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Preventivo', 'Correctivo', 'Predictivo'],
+                datasets: [{
+                    data: [85, 15, 0],
+                    backgroundColor: [
+                        'rgba(46, 204, 113, 0.7)',
+                        'rgba(231, 76, 60, 0.7)',
+                        'rgba(155, 89, 182, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(46, 204, 113, 1)',
+                        'rgba(231, 76, 60, 1)',
+                        'rgba(155, 89, 182, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.parsed}%`;
+                            }
+                        },
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        titleColor: '#0d3b66',
+                        bodyColor: '#333',
+                        borderColor: '#e0e6ed',
+                        borderWidth: 1
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
